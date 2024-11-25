@@ -1,5 +1,5 @@
 ---
-title: Aplicaciones MPI y Snakemake
+title: MPI-Anwendungen und Snakemake
 teaching: 30
 exercises: 20
 ---
@@ -7,28 +7,30 @@ exercises: 20
 
 ::: objectives
 
-- "Define reglas para ejecutar localmente y en el clúster"
+- "Definiere Regeln, die lokal und im Cluster laufen sollen"
 
 :::
 
 ::: questions
 
-- "¿Cómo puedo ejecutar una aplicación MPI a través de Snakemake en el cluster?"
+- "Wie kann ich eine MPI-Anwendung über Snakemake auf dem Cluster ausführen?"
 
 :::
 
-Ahora es el momento de volver a nuestro flujo de trabajo real. Podemos ejecutar un
-comando en el cluster, pero ¿qué pasa con la ejecución de la aplicación MPI que nos
-interesa? Nuestra aplicación se llama `amdahl` y está disponible como módulo de entorno.
+Jetzt ist es an der Zeit, sich wieder unserem eigentlichen Arbeitsablauf zuzuwenden. Wir
+können einen Befehl auf dem Cluster ausführen, aber was ist mit der Ausführung der
+MPI-Anwendung, an der wir interessiert sind? Unsere Anwendung heißt `amdahl` und ist als
+Umgebungsmodul verfügbar.
 
 ::: challenge
 
-Localiza y carga el módulo `amdahl` y luego _reemplaza_ nuestra regla `hostname_remote`
-con una versión que ejecute `amdahl`. (No te preocupes por el MPI paralelo todavía,
-ejecútalo con una sola CPU, `mpiexec -n 1 amdahl`).
+Suchen und laden Sie das Modul `amdahl` und _ersetzen_ Sie dann unsere
+`hostname_remote`-Regel durch eine Version, die `amdahl` ausführt. (Machen Sie sich noch
+keine Gedanken über paralleles MPI, lassen Sie es mit einer einzelnen CPU laufen,
+`mpiexec -n 1 amdahl`).
 
-¿Se ejecuta correctamente la regla? Si no es así, revise los archivos de registro para
-averiguar por qué
+Wird Ihre Regel korrekt ausgeführt? Wenn nicht, sehen Sie sich die Protokolldateien an,
+um herauszufinden, warum?
 
 ::::::solution
 
@@ -37,8 +39,8 @@ module spider amdahl
 module load amdahl
 ```
 
-localizará y cargará el módulo `amdahl`. Podemos entonces actualizar/reemplazar nuestra
-regla para ejecutar la aplicación `amdahl`:
+findet das Modul `amdahl` und lädt es dann. Wir können dann unsere Regel
+aktualisieren/ersetzen, um die Anwendung `amdahl` auszuführen:
 
 ```python
 rule amdahl_run:
@@ -48,9 +50,10 @@ rule amdahl_run:
         "mpiexec -n 1 amdahl > {output}"
 ```
 
-Sin embargo, cuando intentamos ejecutar la regla obtenemos un error (a menos que ya
-tengas una versión diferente de `amdahl` disponible en tu ruta). Snakemake informa de la
-ubicación de los logs y si miramos dentro podemos (eventualmente) encontrar
+Wenn wir jedoch versuchen, die Regel auszuführen, erhalten wir eine Fehlermeldung (es
+sei denn, Sie haben bereits eine andere Version von `amdahl` in Ihrem Pfad verfügbar).
+Snakemake meldet den Speicherort der Protokolle und wenn wir darin nachsehen, finden wir
+(eventuell)
 
 ```output
 ...
@@ -70,22 +73,23 @@ Executable: amdahl
 ...
 ```
 
-Así que, aunque cargamos el módulo antes de ejecutar el flujo de trabajo, nuestra regla
-Snakemake no encontró el ejecutable. Esto se debe a que la regla de Snakemake se está
-ejecutando en un _entorno de ejecución_ limpio, y tenemos que decirle de alguna manera
-que cargue el módulo de entorno necesario antes de intentar ejecutar la regla.
+Obwohl wir das Modul vor der Ausführung des Workflows geladen haben, hat unsere
+Snakemake-Regel die ausführbare Datei nicht gefunden. Das liegt daran, dass die
+Snakemake-Regel in einer sauberen _Laufzeitumgebung_ läuft, und wir müssen ihr irgendwie
+sagen, dass sie das notwendige Umgebungsmodul laden soll, bevor wir versuchen, die Regel
+auszuführen.
 
 ::::::
 
 
 :::
 
-## Snakemake y módulos de entorno
+## Snakemake und Umgebungsmodule
 
-Nuestra aplicación se llama `amdahl` y está disponible en el sistema a través de un
-módulo de entorno, por lo que necesitamos decirle a Snakemake que cargue el módulo antes
-de que intente ejecutar la regla. Snakemake es consciente de los módulos de entorno, y
-estos pueden ser especificados a través de (otra) opción:
+Unsere Anwendung heißt `amdahl` und ist auf dem System über ein Umgebungsmodul
+verfügbar, also müssen wir Snakemake sagen, dass es das Modul laden soll, bevor es
+versucht, die Regel auszuführen. Snakemake kennt Umgebungsmodule, und diese können über
+eine (weitere) Option angegeben werden:
 
 ```python
 rule amdahl_run:
@@ -99,12 +103,12 @@ rule amdahl_run:
         "mpiexec -n 1 amdahl > {output}"
 ```
 
-Sin embargo, añadir estas líneas no es suficiente para que la regla se ejecute. No sólo
-tienes que decirle a Snakemake qué módulos cargar, sino que también tienes que decirle
-que use módulos de entorno en general (ya que se considera que el uso de módulos de
-entorno hace que tu entorno de ejecución sea menos reproducible, ya que los módulos
-disponibles pueden diferir de un cluster a otro). Esto requiere que le des a Snakemake
-una opción adicional
+Das Hinzufügen dieser Zeilen reicht jedoch nicht aus, damit die Regel ausgeführt wird.
+Sie müssen Snakemake nicht nur mitteilen, welche Module geladen werden sollen, sondern
+auch, dass es generell Umgebungsmodule verwenden soll (da die Verwendung von
+Umgebungsmodulen Ihre Laufzeitumgebung weniger reproduzierbar macht, da sich die
+verfügbaren Module von Cluster zu Cluster unterscheiden können). Dazu müssen Sie
+Snakemake eine zusätzliche Option geben
 
 ```bash
 snakemake --profile cluster_profile --use-envmodules amdahl_run
@@ -112,12 +116,12 @@ snakemake --profile cluster_profile --use-envmodules amdahl_run
 
 ::: challenge
 
-Utilizaremos módulos de entorno durante el resto del tutorial, así que conviértalo en
-una opción predeterminada de nuestro perfil (estableciendo su valor en `True`)
+Wir werden im weiteren Verlauf des Tutorials Umgebungsmodule verwenden, also machen Sie
+dies zu einer Standardoption unseres Profils (indem Sie den Wert auf `True` setzen)
 
 ::::::solution
 
-Actualiza el perfil de nuestro clúster a
+Aktualisiere unser Clusterprofil auf
 
 ```yaml
 printshellcmds: True
@@ -129,23 +133,23 @@ default-resources:
 use-envmodules: True
 ```
 
-Si quieres probarlo, tienes que borrar el archivo de salida de la regla y volver a
-ejecutar Snakemake.
+Wenn Sie es testen wollen, müssen Sie die Ausgabedatei der Regel löschen und Snakemake
+erneut ausführen.
 
 ::::::
 
 :::
 
-## Snakemake y MPI
+## Snakemake und MPI
 
-En realidad no hemos ejecutado una aplicación MPI en la última sección, ya que sólo lo
-hemos hecho en un núcleo. ¿Cómo solicitamos que se ejecute en varios núcleos para una
-única regla?
+Im letzten Abschnitt haben wir nicht wirklich eine MPI-Anwendung ausgeführt, da wir nur
+auf einem Kern gearbeitet haben. Wie können wir für eine einzelne Regel die Ausführung
+auf mehreren Kernen anfordern?
 
-Snakemake tiene soporte general para MPI, pero el único ejecutor que actualmente soporta
-explícitamente MPI es el ejecutor Slurm (¡por suerte para nosotros!). Si volvemos a
-mirar nuestra tabla de traducción de Slurm a Snakemake nos daremos cuenta de que las
-opciones relevantes aparecen cerca de la parte inferior:
+Snakemake bietet allgemeine Unterstützung für MPI, aber der einzige Executor, der MPI
+derzeit explizit unterstützt, ist der Slurm-Executor (ein Glück für uns!). Wenn wir uns
+unsere Übersetzungstabelle von Slurm nach Snakemake ansehen, stellen wir fest, dass die
+relevanten Optionen in der Nähe des unteren Randes erscheinen:
 
 | SLURM             | Snakemake       | Description                                                    |
 | ----------------- | --------------- | -------------------------------------------------------------- |
@@ -154,9 +158,9 @@ opciones relevantes aparecen cerca de la parte inferior:
 | `--cpus-per-task` | `cpus_per_task` | number of cpus per task (in case of SMP, rather use `threads`) |
 | `--nodes`         | `nodes`         | number of nodes                                                |
 
-El que nos interesa es `tasks` ya que sólo vamos a aumentar el número de rangos. Podemos
-definirlos en una sección `resources` de nuestra regla y referirnos a ellos usando
-marcadores de posición:
+Diejenige, die uns interessiert, ist `tasks`, da wir nur die Anzahl der Ränge erhöhen
+wollen. Wir können diese in einem `resources`-Abschnitt unserer Regel definieren und mit
+Platzhaltern auf sie verweisen:
 
 ```python
 rule amdahl_run:
@@ -172,66 +176,70 @@ rule amdahl_run:
         "{resources.mpi} -n {resources.tasks} amdahl > {output}"
 ```
 
-Ha funcionado, pero ahora tenemos un pequeño problema. Queremos hacer esto para algunos
-valores diferentes de `tasks` que significaría que necesitaríamos un archivo de salida
-diferente para cada ejecución. Sería genial si de alguna manera podemos indicar en el
-`output` el valor que queremos utilizar para `tasks` ... y que Snakemake lo recoja.
+Das hat funktioniert, aber jetzt haben wir ein kleines Problem. Wir möchten dies für
+einige verschiedene Werte von `tasks` tun, was bedeuten würde, dass wir für jeden Lauf
+eine andere Ausgabedatei benötigen. Es wäre großartig, wenn wir irgendwie in `output`
+den Wert angeben könnten, den wir für `tasks` verwenden wollen... und Snakemake das
+übernehmen könnte.
 
-Podríamos utilizar un _wildcard_ en el `output` para permitirnos definir el `tasks` que
-deseamos utilizar. La sintaxis de este comodín es la siguiente
+Wir könnten eine _Wildcard_ in der `output` verwenden, um die `tasks` zu definieren, die
+wir verwenden wollen. Die Syntax für einen solchen Platzhalter sieht wie folgt aus
 
 ```python
 output: "amdahl_run_{parallel_tasks}.txt"
 ```
 
-donde `parallel_tasks` es nuestro comodín.
+wobei `parallel_tasks` unser Platzhalter ist.
 
 ::: callout
 
-## Comodines
+## Wildcards
 
-Los comodines se utilizan en las líneas `input` y `output` de la regla para representar
-partes de nombres de archivo. Al igual que el patrón `*` del intérprete de comandos, el
-comodín puede sustituir a cualquier texto para formar el nombre de archivo deseado. Al
-igual que con el nombre de sus reglas, puede elegir cualquier nombre que desee para sus
-comodines, así que aquí hemos utilizado `parallel_tasks`. El uso de los mismos comodines
-en la entrada y la salida es lo que le dice a Snakemake cómo hacer coincidir los
-archivos de entrada con los archivos de salida.
+Wildcards werden in den Zeilen `input` und `output` der Regel verwendet, um Teile von
+Dateinamen zu repräsentieren. Ähnlich wie das `*`-Muster in der Shell, kann der
+Platzhalter für jeden beliebigen Text stehen, um den gewünschten Dateinamen zu bilden.
+Wie bei der Benennung Ihrer Regeln können Sie auch für Ihre Platzhalter einen beliebigen
+Namen wählen, hier also `parallel_tasks`. Durch die Verwendung der gleichen Platzhalter
+in der Eingabe und der Ausgabe wird Snakemake mitgeteilt, wie die Eingabedateien den
+Ausgabedateien zugeordnet werden sollen.
 
-Si dos reglas usan un comodín con el mismo nombre entonces Snakemake las tratará como
-entidades diferentes - las reglas en Snakemake son autocontenidas de esta manera.
+Wenn zwei Regeln einen Platzhalter mit demselben Namen verwenden, behandelt Snakemake
+sie als unterschiedliche Einheiten - Regeln in Snakemake sind auf diese Weise in sich
+geschlossen.
 
-En la línea `shell` puede hacer referencia al comodín con `{wildcards.parallel_tasks}`
+In der Zeile `shell` kann man den Platzhalter mit `{wildcards.parallel_tasks}`
+referenzieren
 
 :::
 
-## Orden de operaciones de Snakemake
+## Snakemake Reihenfolge der Operationen
 
-Sólo estamos empezando con algunas reglas simples, pero vale la pena pensar en lo que
-Snakemake está haciendo exactamente cuando se ejecuta. Hay tres fases distintas:
+Wir fangen gerade erst mit ein paar einfachen Regeln an, aber es lohnt sich, darüber
+nachzudenken, was Snakemake genau macht, wenn Sie es ausführen. Es gibt drei
+verschiedene Phasen:
 
-1. Prepara la ejecución:
-    1. Lee todas las definiciones de reglas del archivo Snakefile
-1. Planea qué hacer:
-    1. Ve qué fichero(s) le estás pidiendo que haga
-    1. Busca una regla coincidente mirando las `output`s de todas las reglas que conoce
-    1. Rellena los comodines para calcular el `input` de esta regla
-    1. Comprueba que este archivo de entrada (si es necesario) está disponible
-1. Ejecuta los pasos:
-    1. Crea el directorio para el fichero de salida, si es necesario
-    1. Elimina el archivo de salida antiguo si ya está ahí
-    1. Sólo entonces, ejecuta el comando de shell con los marcadores de posición
-       sustituidos
-    1. Comprueba que el comando se ejecuta sin errores *y* crea el nuevo archivo de
-       salida según lo esperado
+1. Bereitet sich auf die Ausführung vor:
+    1. Liest alle Regeldefinitionen aus dem Snakefile ein
+1. Planen, was zu tun ist:
+    1. Zeigt an, welche Datei(en) Sie erstellen lassen wollen
+    1. Sucht nach einer passenden Regel, indem es die `output` aller ihm bekannten
+       Regeln betrachtet
+    1. Füllt die Platzhalter aus, um die `input` für diese Regel zu berechnen
+    1. Prüft, ob diese Eingabedatei (falls erforderlich) tatsächlich vorhanden ist
+1. Führt die Schritte aus:
+    1. Erzeugt das Verzeichnis für die Ausgabedatei, falls erforderlich
+    1. Entfernt die alte Ausgabedatei, wenn sie bereits vorhanden ist
+    1. Nur dann wird der Shell-Befehl mit den ersetzten Platzhaltern ausgeführt
+    1. Prüft, ob der Befehl ohne Fehler ausgeführt *und* die neue Ausgabedatei wie
+       erwartet erstellt wurde
 
 ::: callout
 
-## Modo de ejecución en seco (`-n`)
+## Trockenlauf (`-n`) Modus
 
-A menudo es útil ejecutar sólo las dos primeras fases, de modo que Snakemake planificará
-los trabajos a ejecutar, y los imprimirá en la pantalla, pero nunca los ejecutará
-realmente. Esto se hace con la bandera `-n`, eg:
+Es ist oft nützlich, nur die ersten beiden Phasen laufen zu lassen, so dass Snakemake
+die auszuführenden Jobs plant und sie auf dem Bildschirm ausgibt, sie aber nie
+tatsächlich ausführt. Dies wird mit dem `-n` Flag erreicht, z.B.:
 
 ```bash
 > $ snakemake -n ...
@@ -239,14 +247,14 @@ realmente. Esto se hace con la bandera `-n`, eg:
 
 :::
 
-La cantidad de comprobaciones puede parecer pedante ahora mismo, pero a medida que el
-flujo de trabajo gane más pasos esto nos resultará realmente muy útil.
+Die Anzahl der Überprüfungen mag im Moment noch pedantisch erscheinen, aber wenn der
+Arbeitsablauf mehr Schritte umfasst, wird dies in der Tat sehr nützlich für uns werden.
 
-## Usando comodines en nuestra regla
+## Verwendung von Wildcards in unserer Regel
 
-Nos gustaría utilizar un comodín en `output` para poder definir el número de `tasks` que
-deseamos utilizar. Basándonos en lo que hemos visto hasta ahora, se podría imaginar que
-esto podría tener el siguiente aspecto
+Wir möchten einen Platzhalter in `output` verwenden, um die Anzahl der `tasks` zu
+definieren, die wir verwenden möchten. Ausgehend von dem, was wir bisher gesehen haben,
+könnten Sie sich vorstellen, dass dies wie folgt aussehen könnte
 
 ```python
 rule amdahl_run:
@@ -262,20 +270,21 @@ rule amdahl_run:
         "{resources.mpi} -n {resources.tasks} amdahl > {output}"
 ```
 
-pero hay dos problemas con esto:
+aber es gibt zwei Probleme damit:
 
-- La única forma de que Snakemake conozca el valor del comodín es que el usuario
-  solicite explícitamente un archivo de salida concreto (en lugar de llamar a la regla):
+- Die einzige Möglichkeit für Snakemake, den Wert des Platzhalters zu erfahren, besteht
+  darin, dass der Benutzer explizit eine konkrete Ausgabedatei anfordert (anstatt die
+  Regel aufzurufen):
 
 ```bash
   snakemake --profile cluster_profile amdahl_run_2.txt
 ```
 
-Esto es perfectamente válido, ya que Snakemake puede averiguar que tiene una regla que
-puede coincidir con ese nombre de archivo.
+Dies ist vollkommen gültig, da Snakemake herausfinden kann, dass es eine Regel gibt, die
+mit diesem Dateinamen übereinstimmen kann.
 
-- El mayor problema es que incluso haciendo eso no funciona, parece que no podemos usar
-  un comodín para `tasks`:
+- Das größere Problem ist, dass selbst das nicht funktioniert, es scheint, dass wir
+  keinen Platzhalter für `tasks` verwenden können:
 
   ```output
   WorkflowError:
@@ -283,25 +292,26 @@ puede coincidir con ese nombre de archivo.
   error: Invalid numeric value "{parallel_tasks}" for --ntasks.
   ```
 
-Por desgracia para nosotros, no hay forma directa de acceder a los comodines de `tasks`.
-La razón de esto es que Snakemake intenta utilizar el valor de `tasks` durante su etapa
-de inicialización, que es antes de que sepamos el valor del comodín. Necesitamos aplazar
-la determinación de `tasks` para más adelante. Esto se puede conseguir especificando una
-función de entrada en lugar de un valor para este escenario. La solución entonces es
-escribir una función de un solo uso para manipular Snakemake para que haga esto por
-nosotros. Dado que la función es específicamente para la regla, podemos utilizar una
-función de una sola línea sin nombre. Este tipo de funciones se llaman funciones
-anónimas o funciones lamdba (ambas significan lo mismo), y son una característica de
-Python (y otros lenguajes de programación).
+Leider gibt es für uns keine direkte Möglichkeit, auf die Platzhalter für `tasks`
+zuzugreifen. Der Grund dafür ist, dass Snakemake versucht, den Wert von `tasks` während
+seiner Initialisierungsphase zu verwenden, also bevor wir den Wert des Platzhalters
+kennen. Wir müssen die Bestimmung von `tasks` auf einen späteren Zeitpunkt verschieben.
+Dies kann erreicht werden, indem für dieses Szenario eine Eingabefunktion anstelle eines
+Wertes angegeben wird. Die Lösung besteht also darin, eine einmalig zu verwendende
+Funktion zu schreiben, die Snakemake dazu bringt, dies für uns zu tun. Da die Funktion
+speziell für die Regel gedacht ist, können wir eine einzeilige Funktion ohne Namen
+verwenden. Diese Art von Funktionen werden entweder anonyme Funktionen oder
+Lamdba-Funktionen genannt (beide bedeuten dasselbe) und sind ein Merkmal von Python (und
+anderen Programmiersprachen).
 
-Para definir una función lambda en python, la sintaxis general es la siguiente:
+Um eine Lambda-Funktion in Python zu definieren, ist die allgemeine Syntax wie folgt:
 
 ```python
 lambda x: x + 54
 ```
 
-Dado que nuestra función _puede_ tomar los comodines como argumentos, podemos utilizarla
-para establecer el valor de `tasks`:
+Da unsere Funktion die Wildcards als Argumente annehmen kann, können wir damit den Wert
+für `tasks` festlegen:
 
 ```python
 rule amdahl_run:
@@ -320,25 +330,24 @@ rule amdahl_run:
         "{resources.mpi} -n {resources.tasks} amdahl > {output}"
 ```
 
-Ahora tenemos una regla que puede utilizarse para generar la salida de ejecuciones de un
-número arbitrario de tareas paralelas.
+Jetzt haben wir eine Regel, die verwendet werden kann, um die Ausgabe von Läufen einer
+beliebigen Anzahl von parallelen Aufgaben zu erzeugen.
 
 ::: callout
 
-## Comentarios en Snakefiles
+## Kommentare in Snakefiles
 
-En el código anterior, la línea que comienza `#` es una línea de comentario. Esperemos
-que ya tengas el hábito de añadir comentarios a tus propios scripts. Los buenos
-comentarios hacen que cualquier script sea más legible, y esto es igual de cierto con
-los Snakefiles.
+Im obigen Code ist die Zeile, die mit `#` beginnt, eine Kommentarzeile. Hoffentlich
+haben Sie sich bereits angewöhnt, Kommentare in Ihre eigenen Skripte einzufügen. Gute
+Kommentare machen jedes Skript besser lesbar, und das gilt auch für Snakefiles.
 
 :::
 
-Dado que nuestra regla es ahora capaz de generar un número arbitrario de ficheros de
-salida las cosas podrían llenarse mucho en nuestro directorio actual. Probablemente sea
-mejor entonces poner las ejecuciones en una carpeta separada para mantener las cosas
-ordenadas. Podemos añadir la carpeta directamente a nuestro `output` y Snakemake se
-encargará de crear el directorio por nosotros:
+Da unsere Regel nun in der Lage ist, eine beliebige Anzahl von Ausgabedateien zu
+erzeugen, könnte es in unserem aktuellen Verzeichnis sehr voll werden. Es ist daher
+wahrscheinlich am besten, die Läufe in einen separaten Ordner zu legen, um Ordnung zu
+schaffen. Wir können den Ordner direkt zu unserem `output` hinzufügen und Snakemake wird
+die Erstellung des Verzeichnisses für uns übernehmen:
 
 ```python
 rule amdahl_run:
@@ -359,11 +368,11 @@ rule amdahl_run:
 
 ::: challenge
 
-Crea un fichero de salida (en la carpeta `runs`) para el caso en que tengamos 6 tareas
-paralelas
+Erstellt eine Ausgabedatei (im Ordner `runs`) für den Fall, dass wir 6 parallele
+Aufgaben haben
 
-(SUGERENCIA: Recuerde que Snakemake tiene que ser capaz de hacer coincidir el archivo
-solicitado con el `output` de una regla)
+(TIPP: Denken Sie daran, dass Snakemake in der Lage sein muss, die angeforderte Datei
+mit dem `output` einer Regel abzugleichen)
 
 :::::: solution
 
@@ -375,11 +384,11 @@ snakemake --profile cluster_profile runs/amdahl_run_6.txt
 
 :::
 
-Otra cosa sobre nuestra aplicación `amdahl` es que en última instancia queremos procesar
-la salida para generar nuestro gráfico de escala. La salida en este momento es útil para
-la lectura, pero hace que el procesamiento sea más difícil.`amdahl` tiene una opción que
-realmente hace esto más fácil para nosotros. Para ver las opciones de `amdahl` podemos
-utilizar
+Ein weiterer Punkt bei unserer Anwendung `amdahl` ist, dass wir die Ausgabe schließlich
+verarbeiten wollen, um unsere Skalierungsdarstellung zu erzeugen. Die derzeitige Ausgabe
+ist zwar nützlich zum Lesen, erschwert aber die Verarbeitung. `amdahl` hat eine Option,
+die dies für uns einfacher macht. Um die `amdahl`-Optionen zu sehen, können wir
+verwenden
 
 ```bash
 [ocaisa@node1 ~]$ module load amdahl
@@ -399,11 +408,11 @@ options:
   -e, --exact           Disable random jitter
 ```
 
-La opción que buscamos es `--terse`, que hará que `amdahl` imprima la salida en un
-formato mucho más fácil de procesar, JSON. El formato JSON en un archivo normalmente
-utiliza la extensión de archivo `.json` así que vamos a añadir esa opción a nuestro
-comando `shell` _y_ cambiar el formato de archivo de la `output` para que coincida con
-nuestro nuevo comando:
+Die Option, nach der wir suchen, ist `--terse`, und die bewirkt, dass `amdahl` in einem
+viel einfacher zu verarbeitenden Format ausgegeben wird, nämlich JSON. Das JSON-Format
+in einer Datei verwendet normalerweise die Dateierweiterung `.json`, also fügen wir
+diese Option zu unserem `shell`-Befehl hinzu _und_ ändern das Dateiformat von `output`,
+damit es zu unserem neuen Befehl passt:
 
 ```python
 rule amdahl_run:
@@ -422,12 +431,12 @@ rule amdahl_run:
         "{resources.mpi} -n {resources.tasks} amdahl --terse > {output}"
 ```
 
-Había otro parámetro para `amdahl` que me llamó la atención. `amdahl` tiene una opción
-`--parallel-proportion` (o `-p`) que puede interesarnos cambiar, ya que modifica el
-comportamiento del código y, por tanto, influye en los valores que obtenemos en nuestros
-resultados. Vamos a añadir otra capa de directorio a nuestro formato de salida para
-reflejar una elección particular para este valor. Podemos utilizar un comodín para no
-tener que elegir el valor de inmediato:
+Es gab einen weiteren Parameter für `amdahl`, der mir aufgefallen ist. `amdahl` hat eine
+Option `--parallel-proportion` (oder `-p`), an deren Änderung wir interessiert sein
+könnten, da sie das Verhalten des Codes verändert und sich somit auf die Werte auswirkt,
+die wir in unseren Ergebnissen erhalten. Fügen wir eine weitere Verzeichnisebene zu
+unserem Ausgabeformat hinzu, um eine bestimmte Wahl für diesen Wert wiederzugeben. Wir
+können einen Platzhalter verwenden, damit wir den Wert gleich auswählen müssen:
 
 ```python
 rule amdahl_run:
@@ -448,8 +457,8 @@ rule amdahl_run:
 
 ::: challenge
 
-Crea un fichero de salida para un valor de `-p` de 0.999 (el valor por defecto es 0.8)
-para el caso en que tengamos 6 tareas paralelas.
+Erstellen Sie eine Ausgabedatei für einen Wert von `-p` von 0,999 (der Standardwert ist
+0,8) für den Fall, dass wir 6 parallele Aufgaben haben.
 
 :::::: solution
 
@@ -463,9 +472,10 @@ snakemake --profile cluster_profile p_0.999/runs/amdahl_run_6.json
 
 ::: keypoints
 
-- "Snakemake elige la regla apropiada mediante la sustitución de comodines de tal manera
-  que la salida coincide con el objetivo"
-- "Snakemake comprueba varias condiciones de error y se detendrá si ve un problema"
+- "Snakemake wählt die passende Regel durch Ersetzen von Platzhaltern aus, so dass die
+  Ausgabe mit dem Ziel übereinstimmt"
+- "Snakemake prüft auf verschiedene Fehlerzustände und hält an, wenn es ein Problem
+  sieht"
 
 :::
 

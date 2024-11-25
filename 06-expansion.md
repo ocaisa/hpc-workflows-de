@@ -1,5 +1,5 @@
 ---
-title: Procesamiento de listas de entradas
+title: Verarbeitung von Listen von Eingaben
 teaching: 50
 exercises: 30
 ---
@@ -7,22 +7,22 @@ exercises: 30
 
 ::: questions
 
-- "¿Cómo puedo procesar varios archivos a la vez?"
-- "¿Cómo combino varios archivos?"
+- "Wie kann ich mehrere Dateien auf einmal verarbeiten?"
+- "Wie kombiniere ich mehrere Dateien miteinander?"
 
 :::
 
 ::: objectives
 
-- "Usa Snakemake para procesar todas nuestras muestras a la vez"
-- "Haz un gráfico de escalabilidad que agrupe nuestros resultados"
+- "Verwenden Sie Snakemake, um alle unsere Proben auf einmal zu verarbeiten"
+- "Erstellen Sie ein Skalierbarkeitsdiagramm, das unsere Ergebnisse zusammenfasst"
 
 :::
 
-Hemos creado una regla que puede generar un único archivo de salida, pero no vamos a
-crear varias reglas para cada archivo de salida. Queremos generar todos los archivos de
-ejecución con una sola regla si pudiéramos, bueno Snakemake puede efectivamente tomar
-una lista de archivos de entrada:
+Wir haben eine Regel erstellt, die eine einzige Ausgabedatei erzeugen kann, aber wir
+werden nicht mehrere Regeln für jede Ausgabedatei erstellen. Wir wollen alle
+Ausführungsdateien mit einer einzigen Regel erzeugen, wenn es möglich ist, und Snakemake
+kann tatsächlich eine Liste von Eingabedateien annehmen:
 
 ```python
 rule generate_run_files:
@@ -32,34 +32,35 @@ rule generate_run_files:
         "echo {input} done > {output}"
 ```
 
-Eso está muy bien, pero no queremos tener que listar todos los archivos que nos
-interesan individualmente. ¿Cómo podemos hacerlo?
+Das ist großartig, aber wir wollen nicht alle Dateien, an denen wir interessiert sind,
+einzeln auflisten müssen. Wie können wir dies tun?
 
-## Definición de una lista de muestras a procesar
+## Definieren einer Liste von zu verarbeitenden Proben
 
-Para ello, podemos definir algunas listas como **variables globales** de Snakemake.
+Um dies zu tun, können wir einige Listen als Snakemake **globale Variablen** definieren.
 
-Las variables globales deben añadirse antes de las reglas en el Snakefile.
+Globale Variablen sollten vor den Regeln in der Snakefile hinzugefügt werden.
 
 ```python
 # Task sizes we wish to run
 NTASK_SIZES = [1, 2, 3, 4, 5]
 ```
 
-- A diferencia de lo que ocurre con las variables en los scripts de shell, podemos poner
-  espacios alrededor del signo `=`, pero no son obligatorios.
-- Las listas de cadenas entrecomilladas van entre corchetes y separadas por comas. Si
-  sabes algo de Python reconocerás esto como sintaxis de listas de Python.
-- Una buena convención es utilizar nombres en mayúsculas para estas variables, pero no
-  es obligatorio.
-- Aunque éstas se denominan variables, en realidad no se pueden cambiar los valores una
-  vez que el flujo de trabajo se está ejecutando, por lo que las listas definidas de
-  esta manera son más como constantes.
+- Anders als bei Variablen in Shell-Skripten können wir Leerzeichen um das `=`-Zeichen
+  setzen, aber sie sind nicht zwingend erforderlich.
+- Die Listen der in Anführungszeichen gesetzten Zeichenketten werden in eckige Klammern
+  gesetzt und durch Kommata getrennt. Wenn Sie Python kennen, werden Sie dies als
+  Python-Listensyntax erkennen.
+- Eine gute Konvention ist die Verwendung von großgeschriebenen Namen für diese
+  Variablen, aber das ist nicht zwingend.
+- Obwohl diese als Variablen bezeichnet werden, können Sie die Werte nicht mehr ändern,
+  sobald der Arbeitsablauf läuft, so dass auf diese Weise definierte Listen eher
+  Konstanten sind.
 
-## Usando una regla de Snakemake para definir un lote de salidas
+## Verwendung einer Snakemake-Regel zur Definition eines Stapels von Ausgaben
 
-Ahora vamos a actualizar nuestro Snakefile para aprovechar la nueva variable global y
-crear una lista de archivos:
+Nun wollen wir unser Snakefile aktualisieren, um die neue globale Variable zu nutzen und
+eine Liste von Dateien zu erstellen:
 
 ```python
 rule generate_run_files:
@@ -69,61 +70,63 @@ rule generate_run_files:
         "echo {input} done > {output}"
 ```
 
-La función `expand(...)` de esta regla genera una lista de nombres de archivo, tomando
-como plantilla lo primero que aparece entre paréntesis y sustituyendo `{count}` por
-todos los `NTASK_SIZES`. Dado que hay 5 elementos en la lista, esto producirá 5 archivos
-que queremos hacer. Tenga en cuenta que tuvimos que proteger nuestro comodín en un
-segundo conjunto de paréntesis para que no fuera interpretado como algo que necesitaba
-ser expandido.
+Die Funktion `expand(...)` in dieser Regel erzeugt eine Liste von Dateinamen, indem sie
+das erste Element in den einfachen Klammern als Vorlage nimmt und `{count}` durch alle
+`NTASK_SIZES` ersetzt. Da die Liste 5 Elemente enthält, ergibt dies 5 Dateien, die wir
+erstellen wollen. Beachten Sie, dass wir unseren Platzhalter in einem zweiten Satz von
+Klammern schützen mussten, damit er nicht als etwas interpretiert wird, das erweitert
+werden muss.
 
-En nuestro caso actual seguimos dependiendo del nombre de fichero para definir el valor
-del comodín `parallel_proportion`, por lo que no podemos llamar a la regla directamente,
-seguimos necesitando solicitar un fichero específico:
+In unserem aktuellen Fall verlassen wir uns immer noch auf den Dateinamen, um den Wert
+des Platzhalters `parallel_proportion` zu definieren, also können wir die Regel nicht
+direkt aufrufen, sondern müssen immer noch eine bestimmte Datei anfordern:
 
 ```bash
 snakemake --profile cluster_profile/ p_0.999_runs.txt
 ```
 
-Si no especifica un nombre de regla de destino o cualquier nombre de archivo en la línea
-de comandos cuando se ejecuta Snakemake, el valor predeterminado es utilizar ** la
-primera regla ** en el Snakefile como el objetivo.
+Wenn Sie beim Ausführen von Snakemake auf der Befehlszeile keinen Namen für eine
+Zielregel oder Dateinamen angeben, wird standardmäßig **die erste Regel** in der
+Snake-Datei als Ziel verwendet.
 
 ::: callout
 
-## Reglas como destinos
+## Regeln als Ziele
 
-Dar el nombre de una regla a Snakemake en la línea de comandos sólo funciona cuando esa
-regla tiene *sin comodines* en las salidas, porque Snakemake no tiene manera de saber
-cuáles podrían ser los comodines deseados. Verá el error "Las reglas de destino no
-pueden contener comodines" Esto también puede ocurrir cuando no se proporciona ningún
-objetivo explícito en la línea de comandos, y Snakemake intenta ejecutar la primera
-regla definida en el archivo Snakefile.
+Wenn Sie Snakemake den Namen einer Regel auf der Kommandozeile geben, funktioniert das
+nur, wenn diese Regel *keine Platzhalter* in den Ausgaben hat, weil Snakemake keine
+Möglichkeit hat, zu wissen, was die gewünschten Platzhalter sein könnten. Sie erhalten
+die Fehlermeldung "Target rules may not contain wildcards" Dies kann auch passieren,
+wenn Sie in der Befehlszeile keine expliziten Ziele angeben und Snakemake versucht, die
+erste im Snakefile definierte Regel auszuführen.
 
 :::
 
-## Reglas que combinan varias entradas
+## Regeln, die mehrere Eingaben kombinieren
 
-Nuestra regla `generate_run_files` es una regla que toma una lista de archivos de
-entrada. La longitud de esa lista no está fijada por la regla, sino que puede cambiar en
-función de `NTASK_SIZES`.
+Unsere `generate_run_files` Regel ist eine Regel, die eine Liste von Eingabedateien
+annimmt. Die Länge dieser Liste ist nicht durch die Regel festgelegt, sondern kann sich
+je nach `NTASK_SIZES` ändern.
 
-En nuestro flujo de trabajo el paso final es tomar todos los archivos generados y
-combinarlos en un gráfico. Para ello, es posible que haya oído que algunas personas
-utilizan una biblioteca de Python llamada `matplotlib`. Está más allá del alcance de
-este tutorial escribir el script de python para crear un gráfico final, así que te
-proporcionamos el script como parte de esta lección. Puede descargarlo con
+In unserem Arbeitsablauf besteht der letzte Schritt darin, alle erzeugten Dateien zu
+einem Diagramm zusammenzufassen. Vielleicht haben Sie schon gehört, dass einige Leute
+dafür eine Python-Bibliothek namens `matplotlib` verwenden. Es würde den Rahmen dieses
+Tutorials sprengen, das Python-Skript zu schreiben, um einen endgültigen Plot zu
+erstellen, daher stellen wir Ihnen das Skript als Teil dieser Lektion zur Verfügung. Sie
+können es herunterladen mit
 
 ```bash
 curl -O https://ocaisa.github.io/hpc-workflows/files/plot_terse_amdahl_results.py
 ```
 
-El script `plot_terse_amdahl_results.py` necesita una línea de comandos parecida a:
+Das Skript `plot_terse_amdahl_results.py` benötigt eine Befehlszeile, die wie folgt
+aussieht:
 
 ```bash
 python plot_terse_amdahl_results.py --output <output image filename> <1st input file> <2nd input file> ...
 ```
 
-Introduzcámoslo en nuestra regla `generate_run_files`:
+Lass uns das in unsere `generate_run_files` Regel einfügen:
 
 ```python
 rule generate_run_files:
@@ -135,8 +138,8 @@ rule generate_run_files:
 
 ::: challenge
 
-Este script depende de `matplotlib`, ¿está disponible como módulo de entorno? Añada este
-requisito a nuestra regla.
+Dieses Skript verlässt sich auf `matplotlib`, ist es als Umgebungsmodul verfügbar? Fügen
+Sie diese Bedingung zu unserer Regel hinzu.
 
 :::::: solution
 
@@ -154,7 +157,8 @@ rule generate_run_files:
 
 :::
 
-¡Por fin podemos generar un gráfico de escala! Ejecute el último comando de Snakemake:
+Jetzt können wir endlich ein Skalierungsdiagramm erstellen! Führen Sie den letzten
+Snakemake-Befehl aus:
 
 ```bash
 snakemake --profile cluster_profile/ p_0.999_scalability.jpg
@@ -162,7 +166,7 @@ snakemake --profile cluster_profile/ p_0.999_scalability.jpg
 
 ::: challenge
 
-Genera el gráfico de escalabilidad para todos los valores de 1 a 10 núcleos.
+Erzeugen Sie das Skalierbarkeitsdiagramm für alle Werte von 1 bis 10 Kernen.
 
 :::::: solution
 
@@ -176,7 +180,7 @@ NTASK_SIZES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 ::: challenge
 
-Vuelva a ejecutar el flujo de trabajo para un valor `p` de 0.8
+Wiederholung des Arbeitsablaufs für einen `p`-Wert von 0,8
 
 :::::: solution
 
@@ -190,18 +194,18 @@ snakemake --profile cluster_profile/ p_0.8_scalability.jpg
 
 ::: challenge
 
-## Ronda de bonificación
+## Bonusrunde
 
-Cree una regla final que pueda llamarse directamente y genere un gráfico de escala para
-3 valores diferentes de `p`.
+Erstellen Sie eine endgültige Regel, die direkt aufgerufen werden kann und ein
+Skalierungsdiagramm für 3 verschiedene Werte von `p` erzeugt.
 
 :::
 
 ::: keypoints
 
-- "Utilice la función `expand()` para generar listas de nombres de archivo que desee
-  combinar"
-- "Cualquier `{input}` de una regla puede ser una lista de longitud variable"
+- "Verwenden Sie die Funktion `expand()`, um Listen von Dateinamen zu erzeugen, die Sie
+  kombinieren wollen"
+- "Jede `{input}` zu einer Regel kann eine Liste variabler Länge sein"
 
 :::
 

@@ -1,10 +1,10 @@
 ---
-title: Referencia
+title: Referenz
 ---
 
 
-## Glosario
+## Glossar
 
-Este es un archivo de marcadores de posición. Añada el contenido aquí.
+Dies ist eine Platzhalterdatei. Bitte fügen Sie den Inhalt hier ein.
 
 

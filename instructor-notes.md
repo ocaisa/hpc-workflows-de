@@ -1,7 +1,7 @@
 ---
-title: Notas del instructor
+title: Ausbilder-Notizen
 ---
 
 
-Este es un archivo de marcador de posición. Por favor, añada el contenido aquí.
+Dies ist eine Platzhalterdatei. Bitte fügen Sie hier den Inhalt ein.
 

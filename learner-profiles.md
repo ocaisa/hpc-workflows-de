@@ -3,5 +3,5 @@ title: FIXME
 ---
 
 
-Este es un archivo de marcador de posición. Por favor, añada el contenido aquí.
+Dies ist eine Platzhalterdatei. Bitte fügen Sie hier den Inhalt ein.
 

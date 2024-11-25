@@ -1,5 +1,5 @@
 ---
-title: Ejecutando comandos con Snakemake
+title: Ausführen von Befehlen mit Snakemake
 teaching: 30
 exercises: 30
 ---
@@ -7,35 +7,36 @@ exercises: 30
 
 ::: questions
 
-- "¿Cómo ejecuto un comando simple con Snakemake?"
+- "Wie führe ich einen einfachen Befehl mit Snakemake aus?"
 
 :::
 
 :::objectives
 
-- "Crea una receta de Snakemake (un Snakefile)"
+- "Erstelle ein Snakemake-Rezept (eine Snake-Datei)"
 
 :::
 
-## ¿Cuál es el flujo de trabajo que me interesa?
+## Für welchen Arbeitsablauf interessiere ich mich?
 
-En esta lección haremos un experimento que toma una aplicación que corre en paralelo e
-investigará su escalabilidad. Para ello necesitaremos recopilar datos, en este caso eso
-significa ejecutar la aplicación varias veces con diferentes números de núcleos de CPU y
-registrar el tiempo de ejecución. Una vez hecho esto, tenemos que crear una
-visualización de los datos para ver cómo se compara con el caso ideal.
+In dieser Lektion werden wir ein Experiment durchführen, bei dem wir eine parallel
+laufende Anwendung auf ihre Skalierbarkeit hin untersuchen. Dazu müssen wir Daten
+sammeln. In diesem Fall bedeutet das, dass wir die Anwendung mehrmals mit einer
+unterschiedlichen Anzahl von CPU-Kernen ausführen und die Ausführungszeit aufzeichnen.
+Danach müssen wir eine Visualisierung der Daten erstellen, um zu sehen, wie sie sich im
+Vergleich zum Idealfall verhalten.
 
-A partir de la visualización podemos decidir a qué escala tiene más sentido ejecutar la
-aplicación en producción para maximizar el uso de nuestra asignación de CPU en el
-sistema.
+Anhand der Visualisierung können wir dann entscheiden, in welchem Maßstab es am
+sinnvollsten ist, die Anwendung in der Produktion laufen zu lassen, um die CPU-Zuweisung
+auf dem System optimal zu nutzen.
 
-Podríamos hacer todo esto manualmente, pero existen herramientas útiles que nos ayudan a
-gestionar pipelines de análisis de datos como el que tenemos en nuestro experimento. Hoy
-vamos a aprender acerca de uno de ellos: Snakemake.
+Wir könnten all dies manuell tun, aber es gibt nützliche Tools, die uns bei der
+Verwaltung von Datenanalyse-Pipelines, wie wir sie in unserem Experiment haben, helfen.
+Heute werden wir eines dieser Tools kennenlernen: Snakemake.
 
-Con el fin de empezar con Snakemake, vamos a empezar por tomar un comando simple y ver
-cómo podemos ejecutar que a través de Snakemake. Elijamos el comando `hostname` que
-imprime el nombre del host donde se ejecuta el comando:
+Um mit Snakemake zu beginnen, nehmen wir zunächst einen einfachen Befehl und sehen, wie
+wir ihn mit Snakemake ausführen können. Wählen wir den Befehl `hostname`, der den Namen
+des Rechners ausgibt, auf dem der Befehl ausgeführt wird:
 
 ```bash
 [ocaisa@node1 ~]$ hostname
@@ -45,18 +46,18 @@ imprime el nombre del host donde se ejecuta el comando:
 node1.int.jetstream2.hpc-carpentry.org
 ```
 
-Eso imprime el resultado pero Snakemake se basa en archivos para conocer el estado de su
-flujo de trabajo, así que vamos a redirigir la salida a un archivo:
+Das gibt das Ergebnis aus, aber Snakemake ist auf Dateien angewiesen, um den Status
+Ihres Arbeitsablaufs zu kennen, also leiten wir die Ausgabe in eine Datei um:
 
 ```bash
 [ocaisa@node1 ~]$ hostname > hostname_login.txt
 ```
 
-## Creando un archivo Snakefile
+## Erstellen einer Snake-Datei
 
-Edita un nuevo archivo de texto llamado `Snakefile`.
+Bearbeiten Sie eine neue Textdatei mit dem Namen `Snakefile`.
 
-Contenido de `Snakefile`:
+Inhalt von `Snakefile`:
 
 ```python
 rule hostname_login:
@@ -68,29 +69,31 @@ rule hostname_login:
 
 ::: callout
 
-## Puntos clave sobre este archivo
+## Wichtige Punkte zu dieser Datei
 
-1. El archivo se llama `Snakefile` - con mayúscula `S` y sin extensión de archivo.
-1. Algunas líneas tienen sangría. Las sangrías deben ser con caracteres de espacio, no
-   tabuladores. Vea la sección de configuración para saber cómo hacer que su editor de
-   texto haga esto.
-1. La definición de la regla comienza con la palabra clave `rule` seguida por el nombre
-   de la regla, luego dos puntos.
-1. Llamamos a la regla `hostname_login`. Puede utilizar letras, números o guiones bajos,
-   pero el nombre de la regla debe comenzar con una letra y no puede ser una palabra
-   clave.
-1. Las palabras clave `input`, `output`, y `shell` van seguidas de dos puntos (":").
-1. Los nombres de los archivos y el comando shell están todos en `"quotes"`.
-1. El nombre del archivo de salida se da antes del nombre del archivo de entrada. De
-   hecho, a Snakemake no le importa en qué orden aparecen, pero en este curso daremos
-   primero el de salida. Pronto veremos por qué.
-1. En este caso de uso no hay fichero de entrada para el comando por lo que lo dejamos
-   en blanco.
+1. Die Datei heißt `Snakefile` - mit einem großen `S` und ohne Dateierweiterung.
+1. Einige Zeilen sind eingerückt. Einrückungen müssen mit Leerzeichen, nicht mit
+   Tabulatoren erfolgen. Wie Sie Ihren Texteditor dazu bringen, dies zu tun, erfahren
+   Sie im Abschnitt "Setup".
+1. Die Regeldefinition beginnt mit dem Schlüsselwort `rule`, gefolgt von dem Namen der
+   Regel und einem Doppelpunkt.
+1. Wir haben die Regel `hostname_login` genannt. Sie können Buchstaben, Zahlen oder
+   Unterstriche verwenden, aber der Name der Regel muss mit einem Buchstaben beginnen
+   und darf kein Schlüsselwort sein.
+1. Die Schlüsselwörter `input`, `output` und `shell` werden alle von einem Doppelpunkt
+   (":") gefolgt.
+1. Die Dateinamen und der Shell-Befehl sind alle in `"quotes"`.
+1. Der Name der Ausgabedatei wird vor dem Namen der Eingabedatei angegeben. Eigentlich
+   ist es Snakemake egal, in welcher Reihenfolge sie erscheinen, aber wir geben in
+   diesem Kurs die Ausgabe zuerst an. Wir werden gleich sehen, warum.
+1. In diesem Anwendungsfall gibt es keine Eingabedatei für den Befehl, also lassen wir
+   dieses Feld leer.
 
 :::
 
-De vuelta en el shell ejecutaremos nuestra nueva regla. En este punto, si faltaran
-comillas, sangrías incorrectas, etc., podríamos ver un error.
+Zurück in der Shell werden wir unsere neue Regel ausführen. An diesem Punkt, wenn es
+irgendwelche fehlenden Anführungszeichen, falsche Einrückungen, etc. gab, werden wir
+einen Fehler sehen.
 
 ```bash
 snakemake -j1 -p hostname_login
@@ -100,9 +103,9 @@ snakemake -j1 -p hostname_login
 
 ## `bash: snakemake: command not found...`
 
-Si tu shell te dice que no puede encontrar el comando `snakemake` entonces tenemos que
-hacer que el software esté disponible de alguna manera. En nuestro caso, esto significa
-buscar el módulo que necesitamos cargar:
+Wenn Ihre Shell Ihnen mitteilt, dass sie den Befehl `snakemake` nicht finden kann,
+müssen wir die Software irgendwie verfügbar machen. In unserem Fall bedeutet das, dass
+wir nach dem Modul suchen müssen, das wir laden wollen:
 
 ```bash
 module spider snakemake
@@ -130,13 +133,13 @@ Names marked by a trailing (E) are extensions provided by another module.
 --------------------------------------------------------------------------------------------------------
 ```
 
-Ahora queremos el módulo, así que vamos a cargarlo para que el paquete esté disponible
+Jetzt wollen wir das Modul, also laden wir es, um das Paket verfügbar zu machen
 
 ```bash
 [ocaisa@node1 ~]$ module load snakemake
 ```
 
-y luego asegúrate de que tenemos el comando `snakemake` disponible
+und dann stellen Sie sicher, dass der Befehl `snakemake` verfügbar ist
 
 ```bash
 [ocaisa@node1 ~]$ which snakemake
@@ -154,31 +157,31 @@ snakemake -j1 -p hostname_login
 
 ::: challenge
 
-## Ejecutando Snakemake
+## Ausführen von Snakemake
 
-Ejecute `snakemake --help | less` para ver la ayuda de todas las opciones disponibles.
-¿Qué hace la opción `-p` en el comando `snakemake` anterior?
+Führen Sie `snakemake --help | less` aus, um die Hilfe für alle verfügbaren Optionen zu
+sehen. Was bewirkt die Option `-p` in dem obigen Befehl `snakemake`?
 
-1. Protege los archivos de salida existentes
-1. Imprime en el terminal los comandos shell que se están ejecutando
-1. Le dice a Snakemake que sólo ejecute un proceso a la vez
-1. Solicita al usuario el fichero de entrada correcto
+1. Schützt bestehende Ausgabedateien
+1. Gibt die Shell-Befehle, die gerade ausgeführt werden, auf dem Terminal aus
+1. Sagt Snakemake, dass es nur einen Prozess auf einmal ausführen soll
+1. Fordert den Benutzer auf, die richtige Eingabedatei zu wählen
 
 :::::: hint
 
-Puedes buscar en el texto pulsando <kbd>/</kbd>, y salir de nuevo al shell con
-<kbd>q</kbd>.
+Sie können im Text suchen, indem Sie <kbd>/</kbd> drücken, und mit <kbd>q</kbd> zur
+Shell zurückkehren.
 
 ::::::
 
 :::::: solution
 
-(2) Imprime en el terminal los comandos shell que se están ejecutando
+(2) Gibt die Shell-Befehle, die gerade ausgeführt werden, auf dem Terminal aus
 
-¡Esto es tan útil que no sabemos por qué no está por defecto! La opción `-j1` es lo que
-le dice a Snakemake que sólo ejecute un proceso a la vez, y nos quedaremos con esto por
-ahora ya que hace las cosas más simples. La respuesta 4 es totalmente falsa, ya que
-Snakemake nunca solicita interactivamente la entrada del usuario.
+Dies ist so nützlich, dass wir nicht wissen, warum es nicht die Standardeinstellung ist!
+Die Option `-j1` sagt Snakemake, dass es immer nur einen Prozess auf einmal ausführen
+soll, und wir bleiben vorerst dabei, da es die Dinge einfacher macht. Antwort 4 ist ein
+totales Ablenkungsmanöver, da Snakemake niemals interaktiv nach Benutzereingaben fragt.
 
 ::::::
 
@@ -187,11 +190,11 @@ Snakemake nunca solicita interactivamente la entrada del usuario.
 
 ::: keypoints
 
-- "Antes de ejecutar Snakemake necesitas escribir un Snakefile"
-- "Un Snakefile es un archivo de texto que define una lista de reglas"
-- "Las reglas tienen entradas, salidas y comandos de shell a ejecutar"
-- "Le dices a Snakemake qué archivo hacer y ejecutará el comando shell definido en la
-  regla apropiada"
+- "Bevor Sie Snakemake starten, müssen Sie ein Snakefile schreiben"
+- "Ein Snakefile ist eine Textdatei, die eine Liste von Regeln definiert"
+- "Regeln haben Eingänge, Ausgänge und Shell-Befehle, die ausgeführt werden sollen"
+- "Du sagst Snakemake, welche Datei es erstellen soll, und es wird den in der
+  entsprechenden Regel definierten Shell-Befehl ausführen"
 
 :::
 

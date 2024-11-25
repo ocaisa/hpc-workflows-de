@@ -1,33 +1,32 @@
 ---
-title: Configurar
+title: Einrichtung
 ---
 
 
-FIXME: Las instrucciones de instalación se encuentran en este documento. Por favor,
-especifique las herramientas y los conjuntos de datos que el alumno necesita tener
-instalados.
+FIXME: Anweisungen zur Einrichtung finden Sie in diesem Dokument. Bitte geben Sie die
+Tools und die Datensätze an, die der Lerner installiert haben muss.
 
-## Conjuntos de datos
+## Datensätze
 
 <!--
 FIXME: place any data you want learners to use in `episodes/data` and then use
        a relative link ( [data zip file](data/lesson-data.zip) ) to provide a
        link to it, replacing the example.com link.
 -->
-Descargue el [archivo zip de datos](https://example.com/FIXME) y descomprímalo en su
-Escritorio
+Laden Sie die [data zip file](https://example.com/FIXME) herunter und entpacken Sie sie
+auf Ihren Desktop
 
-## Configuración del software
+## Software-Einrichtung
 
 ::::::::::::::::::::::::::::::::::::::: discussion
 
-### Detalles
+### Details
 
-La configuración para diferentes sistemas puede presentarse en menús desplegables
-mediante una etiqueta `solution`. Se unirán a este bloque de discusión, por lo que puede
-dar una visión general del software utilizado en esta lección aquí y rellenar los
-sistemas operativos individuales (y potencialmente añadir más, por ejemplo,
-configuración en línea) en los bloques de soluciones.
+Die Einstellungen für verschiedene Systeme können in Dropdown-Menüs über ein
+`solution`-Tag dargestellt werden. Sie verbinden sich mit diesem Diskussionsblock, so
+dass Sie hier einen allgemeinen Überblick über die in dieser Lektion verwendete Software
+geben und die einzelnen Betriebssysteme (und möglicherweise weitere, z.B. Online-Setup)
+in den Lösungsblöcken ausfüllen können.
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -35,7 +34,7 @@ configuración en línea) en los bloques de soluciones.
 
 ### Windows
 
-Utilice PuTTY
+PuTTY verwenden
 
 :::::::::::::::::::::::::
 
@@ -43,7 +42,7 @@ Utilice PuTTY
 
 ### MacOS
 
-Utilice Terminal.app
+Terminal.app verwenden
 
 :::::::::::::::::::::::::
 
@@ -52,7 +51,7 @@ Utilice Terminal.app
 
 ### Linux
 
-Usar Terminal
+Terminal verwenden
 
 :::::::::::::::::::::::::
 
