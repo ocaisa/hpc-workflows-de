@@ -425,7 +425,7 @@ auszuführen.</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution1" aria-expanded="false" aria-controls="collapseSolution1">
   <h4 class="accordion-header" id="headingSolution1"> Zeige mir die Lösung </h4>
 </button>
-<div id="collapseSolution1" class="accordion-collapse collapse" data-bs-parent="#accordionSolution1" aria-labelledby="headingSolution1">
+<div id="collapseSolution1" class="accordion-collapse collapse" aria-labelledby="headingSolution1" data-bs-parent="#accordionSolution1">
 <div class="accordion-body">
 <p>Die Regel ist fast identisch mit der vorherigen Regel, außer dem
 Namen der Regel und der Ausgabedatei:</p>
@@ -541,35 +541,35 @@ muss, um Jobs an den Cluster zu übermitteln, auf den man Zugriff hat.
 Leider sind die Namen der Optionen in Snakemake nicht <em>exakt</em>
 dieselben wie die von Slurm, so dass wir die Hilfe einer
 Übersetzungstabelle benötigen:</p>
-<table class="table"><colgroup><col width="17%"><col width="17%"><col width="64%"></colgroup><thead><tr class="header"><th>SLURM</th>
+<table class="table"><colgroup><col width="17%"><col width="17%"><col width="64%"></colgroup><thead><tr><th>SLURM</th>
 <th>Snakemake</th>
 <th>Description</th>
-</tr></thead><tbody><tr class="odd"><td><code>--partition</code></td>
+</tr></thead><tbody><tr><td><code>--partition</code></td>
 <td><code>slurm_partition</code></td>
 <td>the partition a rule/job is to use</td>
-</tr><tr class="even"><td><code>--time</code></td>
+</tr><tr><td><code>--time</code></td>
 <td><code>runtime</code></td>
 <td>the walltime per job in minutes</td>
-</tr><tr class="odd"><td><code>--constraint</code></td>
+</tr><tr><td><code>--constraint</code></td>
 <td><code>constraint</code></td>
 <td>may hold features on some clusters</td>
-</tr><tr class="even"><td><code>--mem</code></td>
+</tr><tr><td><code>--mem</code></td>
 <td><code>mem, mem_mb</code></td>
 <td>memory a cluster node must</td>
-</tr><tr class="odd"><td></td>
+</tr><tr><td></td>
 <td></td>
 <td>provide (mem: string with unit), mem_mb: int</td>
-</tr><tr class="even"><td><code>--mem-per-cpu</code></td>
+</tr><tr><td><code>--mem-per-cpu</code></td>
 <td><code>mem_mb_per_cpu</code></td>
 <td>memory per reserved CPU</td>
-</tr><tr class="odd"><td><code>--ntasks</code></td>
+</tr><tr><td><code>--ntasks</code></td>
 <td><code>tasks</code></td>
 <td>number of concurrent tasks / ranks</td>
-</tr><tr class="even"><td><code>--cpus-per-task</code></td>
+</tr><tr><td><code>--cpus-per-task</code></td>
 <td><code>cpus_per_task</code></td>
 <td>number of cpus per task (in case of SMP, rather use
 <code>threads</code>)</td>
-</tr><tr class="odd"><td><code>--nodes</code></td>
+</tr><tr><td><code>--nodes</code></td>
 <td><code>nodes</code></td>
 <td>number of nodes</td>
 </tr></tbody></table><p>Die von Snakemake ausgegebenen Warnungen wiesen darauf hin, dass wir
@@ -619,7 +619,7 @@ Slurm.</p>
 <button class="accordion-button solution-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolution2" aria-expanded="false" aria-controls="collapseSolution2">
   <h4 class="accordion-header" id="headingSolution2"> Zeige mir die Lösung </h4>
 </button>
-<div id="collapseSolution2" class="accordion-collapse collapse" data-bs-parent="#accordionSolution2" aria-labelledby="headingSolution2">
+<div id="collapseSolution2" class="accordion-collapse collapse" aria-labelledby="headingSolution2" data-bs-parent="#accordionSolution2">
 <div class="accordion-body">
 <div class="codewrapper sourceCode" id="cb13">
 <h3 class="code-label">YAML<i aria-hidden="true" data-feather="chevron-left"></i><i aria-hidden="true" data-feather="chevron-right"></i>
@@ -750,7 +750,7 @@ any links that you are not going to use.
   "identifier": "https://carpentries-incubator.github.io/hpc-workflows/instructor/02-snakemake_on_the_cluster.html",
   "dateCreated": "2023-04-19",
   "dateModified": "2024-11-25",
-  "datePublished": "2026-04-28"
+  "datePublished": "2026-05-05"
 }
 
   </script><script>
